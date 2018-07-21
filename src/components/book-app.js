@@ -54,10 +54,11 @@ class BookApp extends connect(store)(LitElement) {
     // True to hide the input.
     const hideInput = !_page || _page === 'favorites' || _page === 'about' || _page === '404';
     // True to make the search input aligns at the top inside the header instead of inside the main content.
-    const inputAtTop = ('ontouchstart' in window || !_wideLayout) || (_page === 'explore' && _query) || _page === 'detail' || _page === 'viewer';
+    const inputAtTop = ('ontouchstart' in window || !_wideLayout) || (_page === 'explore' && _query) || _page === 'detail' || _page === 'viewer' || _page === 'home';
     // back button href
     const backHref = _page === 'detail' ?
-        (_lastVisitedListPage === 'favorites' ? '/favorites' : `/explore?q=${_query}`) : `/detail/${_bookId}`;
+        (_lastVisitedListPage === 'favorites' ? 
+          '/favorites' : (_lastVisitedListPage === 'home' ? '/home' : `/explore?q=${_query}`)) : `/detail/${_bookId}`;
     // query
     const query = _page === 'home' ? '' : _query;
 

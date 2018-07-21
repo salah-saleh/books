@@ -18,7 +18,7 @@ const app = (state = {drawerOpened: false}, action) => {
       return {
         ...state,
         page: p,
-        lastVisitedListPage: p === 'explore' || p === 'favorites' ? p : state.lastVisitedListPage
+        lastVisitedListPage: p === 'explore' || p === 'favorites' || p === 'home' ? p : state.lastVisitedListPage
       };
     case RECEIVE_LAZY_RESOURCES:
       return {
