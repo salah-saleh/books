@@ -26,7 +26,7 @@ import { store } from '../store.js';
 
 import { refreshPage } from '../actions/app.js';
 import { fetchBook } from '../actions/book.js';
-import { fetchFavorites, saveFavorite } from '../actions/favorites.js';
+import { saveFavorite, changeRentalInfo } from '../actions/favorites.js';
 import { book, bookSelector } from '../reducers/book.js';
 import { favorites } from '../reducers/favorites.js';
 
@@ -37,7 +37,8 @@ store.addReducers({
 });
 
 class BookDetail extends connect(store)(PageViewElement) {
-  _render({_item, _favorites, _lastVisitedListPage, _showOffline, _isSignedIn}) {
+  _render({_item, _favorites, _lastVisitedListPage, _showOffline, _isSignedIn, _rentalType, 
+    _rentalPrice}) {
     // Don't render if there is no item.
     if (!_item) {
       return;
@@ -188,6 +189,21 @@ class BookDetail extends connect(store)(PageViewElement) {
           display: none !important;
         }
 
+        .row {
+          @apply --layout-horizontal;
+          @apply --layout-end;
+        }
+        .column {
+          @apply --layout-vertical;
+        }
+        .row > .flex,
+        .input-row > * {
+          @apply --layout-flex;
+        }
+        .input-row > *:not(:first-child) {
+          margin-left: 8px;
+        }      
+
         /* desktop screen */
         @media (min-width: 648px) {
           :host {
@@ -247,10 +263,35 @@ class BookDetail extends connect(store)(PageViewElement) {
             <div class="info-item" hidden?="${!pageCount}" desktop>${pageCount} pages</div>
             <div class="info-item" hidden?="${!publisher}" desktop>${publisher} - publisher</div>
             <div class="flex"></div>
-            <div class="fav-btn-container" hidden?="${_lastVisitedListPage === 'favorites'}">
-              <button class="fav-button" on-click="${() => store.dispatch(saveFavorite(_item, isFavorite))}" hidden?="${!_isSignedIn}">
-                ${isFavorite ? favoriteIcon : favoriteBorderIcon} ${isFavorite ? 'Added to Favorites' : 'Add to Favorites'}
+            <div class="fav-btn-container" hidden="${_lastVisitedListPage === 'favorites'}">
+              <button class="fav-button" on-click="${() => store.dispatch(saveFavorite(_item, isFavorite))}" hidden="${!_isSignedIn}">
+                ${isFavorite ? favoriteIcon : favoriteBorderIcon} ${isFavorite ? 'Added to Your Library' : 'Add to My Library'}
               </button>
+            </div>
+            <div class="row input-row">
+              <div class="column">
+                <label for="rentalType">For</label>
+                <book-select>
+                  <select id="rentalType" name="rentalType" required
+                        aria-label="Rental Type" value="${_rentalType}" on-change="${(e) => store.dispatch(changeRentalInfo(_item, e.path[0].value, 
+                        _rentalPrice))}">
+                    <option value="Rent">Rent</option>
+                    <option value="Sale">Sale</option>
+
+                  </select>
+                  <book-md-decorator aria-hidden="true">
+                    <book-underline></book-underline>
+                  </book-md-decorator>
+                </book-select>
+              </div>
+              <book-input hidden="${_rentalType === 'Rent'}">
+                <input type="tel" id="price" name="price" required placeholder="${_rentalPrice}" 
+                on-focusout="${(e) => store.dispatch(changeRentalInfo(_item, _rentalType, e.path[0].value || e.path[0].placeholder))}">
+                <book-md-decorator error-message="Invalid Price" aria-hidden="true">
+                  <label for="price">&euro;</label>
+                  <book-underline></book-underline>
+                </book-md-decorator>
+              </book-input>
             </div>
             <div class="preview-btn-container">
               <a href="/viewer/${_item.id}" class="book-button" hidden?="${!accessInfo.embeddable}">PREVIEW</a>
@@ -299,7 +340,9 @@ class BookDetail extends connect(store)(PageViewElement) {
     _favorites: Object,
     _lastVisitedListPage: Boolean,
     _showOffline: Boolean,
-    _isSignedIn: Boolean
+    _isSignedIn: Boolean,
+    _rentalType: String,
+    _rentalPrice: String
   }}
 
   // This is called every time something is updated in the store.
@@ -309,9 +352,11 @@ class BookDetail extends connect(store)(PageViewElement) {
     this._lastVisitedListPage = state.app.lastVisitedListPage;
     this._showOffline = state.app.offline && state.book.failure;
     this._isSignedIn = !!state.auth.user;
+    this._rentalType = this._item && this._item.rentalType;
+    this._rentalPrice = this._item && this._item.rentalPrice;
   }
 }
 
 window.customElements.define('book-detail', BookDetail);
 
-export { fetchBook, fetchFavorites };
+export { fetchBook };

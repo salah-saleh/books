@@ -24,7 +24,7 @@ import { store } from '../store.js';
 
 import { refreshPage } from '../actions/app.js';
 import { signIn } from '../actions/auth.js';
-import { fetchFavorites, saveFavorite } from '../actions/favorites.js';
+import { saveFavorite } from '../actions/favorites.js';
 import { favorites, favoriteListSelector } from '../reducers/favorites.js';
 
 // We are lazy loading its reducer.
@@ -179,5 +179,3 @@ class BookFavorites extends connect(store)(PageViewElement) {
 }
 
 window.customElements.define('book-favorites', BookFavorites);
-
-export { fetchFavorites };

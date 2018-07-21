@@ -28,6 +28,7 @@ import { installMediaQueryWatcher } from 'pwa-helpers/media-query.js';
 import { store } from '../store.js';
 import { navigate, updateLocationURL, updateOffline, updateLayout, showSnackbar, updateDrawerState } from '../actions/app.js';
 import { signIn, signOut, initFirebaseApp } from '../actions/auth.js';
+import { fetchFavorites } from '../actions/favorites.js';
 
 class BookApp extends connect(store)(LitElement) {
   _render({
@@ -304,6 +305,7 @@ class BookApp extends connect(store)(LitElement) {
     this._input = this.shadowRoot.getElementById('input');
     // init irebase and get authenticated user if exist
     store.dispatch(initFirebaseApp());
+    store.dispatch(fetchFavorites());
 }
 
   _stateChanged(state) {

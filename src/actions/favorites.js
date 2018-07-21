@@ -8,88 +8,67 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-import { initAuth } from './auth.js';
+import firebase from '@firebase/app';
+import '@firebase/database';
 
-export const REQUEST_FAVORITES = 'REQUEST_FAVORITES';
 export const RECEIVE_FAVORITES = 'RECEIVE_FAVORITES';
-export const FAIL_FAVORITES = 'FAIL_FAVORITES';
-export const ADD_FAVORITE = 'ADD_FAVORITE';
-export const REMOVE_FAVORITE = 'REMOVE_FAVORITE';
 
-export const fetchFavorites = (force) => (dispatch, getState) => {
-  if (!force && !shouldFetchFavorites(getState())) {
-    return;
-  }
-  initAuth(dispatch).then((GoogleAuth) => {
-    dispatch(requestFavorites());
-    if (!GoogleAuth.isSignedIn.get()) {
-      dispatch(failFavorites());
-      return;
-    }
-    let request = gapi.client.request({
-      method: 'GET',
-      path: 'books/v1/mylibrary/bookshelves/0/volumes'
-    });
-    // Execute the API request.
-    request.execute((response) => {
-      if (response.error) {
-        dispatch(failFavorites());
-      } else {
-        dispatch(receiveFavorites(response.items || []));
-      }
+export const fetchFavorites = () => dispatch => {
+  firebase.database().ref('category-books/All').on('value', snapshot => {
+    const items = snapshot.val() === null ? {} : snapshot.val();
+    dispatch({
+      type: 'RECEIVE_FAVORITES',
+      items
     });
   });
-}
-
-const shouldFetchFavorites = (state) => {
-  return state.favorites && !state.favorites.isFetching && !state.favorites.items;
 }
 
 export const saveFavorite = (item, isRemove) => (dispatch) => {
-  initAuth(dispatch).then((GoogleAuth) => {
-    if (!GoogleAuth.isSignedIn.get()) {
-      return;
-    }
-    let request = gapi.client.request({
-      method: 'POST',
-      path: `books/v1/mylibrary/bookshelves/0/${isRemove ? `removeVolume` : `addVolume`}?volumeId=${item.id}`
-    });
-    // Execute the API request.
-    request.execute((response) => {
-      dispatch(isRemove ? removeFavorite(item) : addFavorite(item));
-    });
-  });
+  dispatch(isRemove ? removeFavorite(item) : addFavorite(item));
 }
 
-const requestFavorites = () => {
-  return {
-    type: REQUEST_FAVORITES
-  };
-};
+const addFavorite = (item) => (dispatch, getState) => {
+  let updates = {};
+  const userID = getState().auth.user.uid;
+  item.volumeInfo.categories[0] += ' / All';
+  item.volumeInfo.categories.forEach(element => {
+    element.split(' / ').forEach(subElement => {
+      updates['/categories/' + subElement] = true;
+      updates['/category-books/' + subElement + '/' + item.id] = item;
+    });
+  });
+  updates['/book-index/' + item.id] = item.volumeInfo.title;
+  updates['/user-books/' + userID + '/' + item.id] = item;
+  firebase.database().ref().update(updates);
+}
 
-const receiveFavorites = (items) => {
-  return {
-    type: RECEIVE_FAVORITES,
-    items
-  };
-};
+const removeFavorite = (item) => (dispatch, getState) => {
+  let updates = {};
+  const userID = getState().auth.user.uid;
+  item.volumeInfo.categories[0] += ' / All';
+  item.volumeInfo.categories.forEach(element => {
+    element.split(' / ').forEach(subElement => {
+      // don't remove '/categories/' + subElement
+      updates['/category-books/' + subElement + '/' + item.id] = null;
+    });
+  });
+  updates['/book-index/' + item.id] = null;
+  updates['/user-books/' + userID + '/' + item.id] = null;
+  firebase.database().ref().update(updates);   
+}
 
-const failFavorites = () => {
-  return {
-    type: FAIL_FAVORITES
-  };
-};
+export const changeRentalInfo = (item, type = 'Sale', price = 5, condition = "Good") => (dispatch, getState) => {
+  let updates = {};
+  const userID = getState().auth.user.uid;
+  const info = {
+    type,
+    price, 
+    condition
+  }
+  const key = '/category-books/All/' + item.id + '/owners/' + userID;
+  const newItemKey = firebase.database().ref().child(key).push().key;
+  updates[key + '/' + newItemKey] = info;
+  updates[key + '/' + newItemKey] = info;
 
-const addFavorite = (item) => {
-  return {
-    type: ADD_FAVORITE,
-    item
-  };
-};
-
-const removeFavorite = (item) => {
-  return {
-    type: REMOVE_FAVORITE,
-    item
-  };
-};
+  firebase.database().ref().update(updates);
+}

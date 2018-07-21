@@ -55,8 +55,6 @@ const loadPage = (page, query, bookId) => async (dispatch, getState) => {
       if (isFetchBookFailed(getState().book)) {
         page = '404';
       }
-      // Fetch favorites
-      dispatch(module.fetchFavorites());
       break;
     case 'viewer':
       module = await import('../components/book-viewer.js');
@@ -69,8 +67,6 @@ const loadPage = (page, query, bookId) => async (dispatch, getState) => {
       break;
     case 'favorites':
       module = await import('../components/book-favorites.js');
-      // Fetch favorites
-      dispatch(module.fetchFavorites());
       // Update subtitle
       dispatch(updateSubTitle('Favorites'));
       break;
