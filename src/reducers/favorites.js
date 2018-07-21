@@ -9,10 +9,20 @@
  */
 
 import { createSelector } from 'reselect';
-import { RECEIVE_FAVORITES } from '../actions/favorites.js';
+import { RECEIVE_FAVORITES, SEARCH_BOOK_LIST } from '../actions/favorites.js';
 
 export const favorites = (state = {}, action) => {
   switch (action.type) {
+    case SEARCH_BOOK_LIST:
+      let items = {...state.items};
+      for (let key in items) {
+        items[key].volumeInfo.title.toLocaleLowerCase().indexOf(action.searchStr.toLocaleLowerCase()) < 0 ? 
+          items[key].hidden = true : items[key].hidden = false;
+      };
+      return {
+        ...state,
+        items: items
+      };
     case RECEIVE_FAVORITES:
       return {
         ...state,

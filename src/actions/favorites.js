@@ -12,6 +12,14 @@ import firebase from '@firebase/app';
 import '@firebase/database';
 
 export const RECEIVE_FAVORITES = 'RECEIVE_FAVORITES';
+export const SEARCH_BOOK_LIST = 'SEARCH_BOOK_LIST';
+
+export const searchBookList = (searchStr) => dispatch => {
+  dispatch({
+    type: 'SEARCH_BOOK_LIST',
+    searchStr
+  });
+}
 
 export const fetchFavorites = () => dispatch => {
   firebase.database().ref('category-books/All').on('value', snapshot => {

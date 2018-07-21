@@ -136,7 +136,7 @@ class BookHome extends connect(store)(PageViewElement) {
           </div>
           <ul class="books">
             ${_items && repeat(_items, (item) => html`
-              <li>
+              <li hidden?="${item.hidden}">
                 <book-item item="${item}">
                   <button class="fav-button" hidden?="${!_user || !item.owners || !(_user.uid in item.owners)}" title="Remove book" on-click="${(e) => this._removeFavorite(e, item)}">${closeIcon}</button>
                 </book-item>
