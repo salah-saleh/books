@@ -130,7 +130,7 @@ class BookHome extends connect(store)(PageViewElement) {
       </style>
 
       <section hidden?="${_showOffline}">
-        <div class="favorites-section" hidden?="${!_user}">
+        <div class="favorites-section">
           <div class="favorites-empty" hidden?="${!_items || _items.length}">
             <h3>No Books Available.</h3>
           </div>
@@ -138,7 +138,7 @@ class BookHome extends connect(store)(PageViewElement) {
             ${_items && repeat(_items, (item) => html`
               <li>
                 <book-item item="${item}">
-                  <button class="fav-button" hidden?="${!_user}" title="Remove book" on-click="${(e) => this._removeFavorite(e, item)}">${closeIcon}</button>
+                  <button class="fav-button" hidden?="${!_user || !item.owners || !(_user.uid in item.owners)}" title="Remove book" on-click="${(e) => this._removeFavorite(e, item)}">${closeIcon}</button>
                 </book-item>
               </li>
             `)}
