@@ -28,7 +28,7 @@ import { installMediaQueryWatcher } from 'pwa-helpers/media-query.js';
 import { store } from '../store.js';
 import { navigate, updateLocationURL, updateOffline, updateLayout, showSnackbar, updateDrawerState } from '../actions/app.js';
 import { signIn, signOut, initFirebaseApp } from '../actions/auth.js';
-import { fetchFavorites, searchBookList } from '../actions/favorites.js';
+import { searchLibrary } from '../actions/library.js';
 
 class BookApp extends connect(store)(LitElement) {
   _render({
@@ -242,7 +242,8 @@ class BookApp extends connect(store)(LitElement) {
         <book-input-decorator top?="${inputAtTop}" hidden?="${hideInput}">
           <input slot="input" id="input" aria-label="Search Books" autofocus type="search" value="${query}"
               on-change="${(e) => _page !=='library' ? store.dispatch(updateLocationURL(`/explore?q=${e.target.value}`)) : ''}"
-              on-keyup="${(e) => _page ==='library' ? store.dispatch(searchBookList(this._input.value)) : ''}">
+              on-keyup="${(e) => _page ==='library' ? store.dispatch(searchLibrary(this._input.value)) : ''}"
+              on-search="${(e) => _page ==='library' ? (e.target.value === '' ? store.dispatch(searchLibrary(this._input.value)) : '') : ''}">
           <speech-mic slot="button" continuous interimResults on-result="${(e) => this._micResult(e)}"></speech-mic>
         </book-input-decorator>
         <h4 class="subtitle" hidden?="${!hideInput}">${_subTitle}</h4>
@@ -335,6 +336,8 @@ class BookApp extends connect(store)(LitElement) {
     const value = d.completeTranscript;
     this._input.value = value;
     if (d.isFinal) {
+      this._page ==='library' ? 
+      store.dispatch(searchLibrary(this._input.value)) :
       store.dispatch(updateLocationURL(`/explore?q=${value}`));
     }
   }

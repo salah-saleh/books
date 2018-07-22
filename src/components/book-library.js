@@ -25,12 +25,12 @@ import './book-offline.js';
 import { store } from '../store.js';
 
 import { refreshPage } from '../actions/app.js';
-import { saveFavorite, fetchCategories, fetchFavorites } from '../actions/favorites.js';
-import { favorites, favoriteListSelector } from '../reducers/favorites.js';
+import { saveBookToLibrary, fetchCategories, fetchLibrary } from '../actions/library.js';
+import { library, libraryListSelector } from '../reducers/library.js';
 
 // We are lazy loading its reducer.
 store.addReducers({
-  favorites
+  library
 });
 
 class BookLibrary extends connect(store)(PageViewElement) {
@@ -67,7 +67,7 @@ class BookLibrary extends connect(store)(PageViewElement) {
             ${_items && repeat(_items, (item) => html`
               <li hidden?="${item.hidden}">
                 <book-item item="${item}">
-                  <button class="lib-button" hidden?="${!_user || !item.owners || !(_user.uid in item.owners)}" title="Remove book" on-click="${(e) => this._removeFavorite(e, item)}">${closeIcon}</button>
+                  <button class="lib-button" hidden?="${!_user || !item.owners || !(_user.uid in item.owners)}" title="Remove book" on-click="${(e) => this._removeBook(e, item)}">${closeIcon}</button>
                 </book-item>
               </li>
             `)}
@@ -88,25 +88,25 @@ class BookLibrary extends connect(store)(PageViewElement) {
 
   _firstRendered() {
     store.dispatch(fetchCategories());
-    store.dispatch(fetchFavorites());
+    store.dispatch(fetchLibrary());
   }
 
   // This is called every time something is updated in the store.
   _stateChanged(state) {
-    this._items = favoriteListSelector(state);
-    this._categories = state.favorites.categories;
+    this._items = libraryListSelector(state);
+    this._categories = state.library.categories;
     this._user = state.auth.user;
-    this._showOffline = state.app.offline && state.favorites.failure;
+    this._showOffline = state.app.offline && state.library.failure;
   }
 
   _selectCategory() {
     const newCat = this.shadowRoot.getElementById('selectCategory').value;
-    store.dispatch(fetchFavorites(newCat));
+    store.dispatch(fetchLibrary(newCat));
   }
 
-  _removeFavorite(e, item) {
+  _removeBook(e, item) {
     e.preventDefault();
-    store.dispatch(saveFavorite(item, true));
+    store.dispatch(saveBookToLibrary(item, true));
   }
 }
 

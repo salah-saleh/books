@@ -26,7 +26,7 @@ import { store } from '../store.js';
 
 import { refreshPage } from '../actions/app.js';
 import { fetchBook } from '../actions/book.js';
-import { saveFavorite, changeRentalInfo } from '../actions/favorites.js';
+import { saveBookToLibrary, changeRentalInfo } from '../actions/favorites.js';
 import { book, bookSelector } from '../reducers/book.js';
 import { favorites } from '../reducers/favorites.js';
 
@@ -264,7 +264,7 @@ class BookDetail extends connect(store)(PageViewElement) {
             <div class="info-item" hidden?="${!publisher}" desktop>${publisher} - publisher</div>
             <div class="flex"></div>
             <div class="fav-btn-container" hidden="${_lastVisitedListPage === 'favorites'}">
-              <button class="fav-button" on-click="${() => store.dispatch(saveFavorite(_item, isFavorite))}" hidden="${!_isSignedIn}">
+              <button class="fav-button" on-click="${() => store.dispatch(saveBookToLibrary(_item, isFavorite))}" hidden="${!_isSignedIn}">
                 ${isFavorite ? favoriteIcon : favoriteBorderIcon} ${isFavorite ? 'Added to Your Library' : 'Add to My Library'}
               </button>
             </div>
