@@ -19,6 +19,20 @@
       "weight": 1
     }
   },
+  "/library": {
+    "src/components/book-app.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "src/components/book-library.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js": {
+      "type": "script",
+      "weight": 1
+    }
+  },
   "/explore": {
     "src/components/book-app.js": {
       "type": "script",
