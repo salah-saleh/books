@@ -99,7 +99,7 @@ export const BookButtonStyle = html`
   book-select > select:focus + book-md-decorator::before,
   book-select > select:focus + book-md-decorator::after,
   book-select > select:focus {
-    color: black;
+    color: var(--app-dark-text-color);
   }
   /* hide the focus ring in firefox */
   book-select > select:focus:-moz-focusring {

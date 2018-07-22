@@ -12,6 +12,7 @@ import firebase from '@firebase/app';
 import '@firebase/database';
 
 export const RECEIVE_FAVORITES = 'RECEIVE_FAVORITES';
+export const RECEIVE_CATEGORIES = 'RECEIVE_CATEGORIES';
 export const SEARCH_BOOK_LIST = 'SEARCH_BOOK_LIST';
 
 export const searchBookList = (searchStr) => dispatch => {
@@ -21,8 +22,18 @@ export const searchBookList = (searchStr) => dispatch => {
   });
 }
 
-export const fetchFavorites = () => dispatch => {
-  firebase.database().ref('category-books/All').on('value', snapshot => {
+export const fetchCategories = () => dispatch => {
+  firebase.database().ref('categories').on('value', snapshot => {
+    const categories = snapshot.val() === null ? {} : snapshot.val();
+    dispatch({
+      type: 'RECEIVE_CATEGORIES',
+      categories
+    });
+  });
+}
+
+export const fetchFavorites = (category = 'All') => dispatch => {
+  firebase.database().ref('category-books/' + category).on('value', snapshot => {
     const items = snapshot.val() === null ? {} : snapshot.val();
     dispatch({
       type: 'RECEIVE_FAVORITES',

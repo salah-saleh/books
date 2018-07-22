@@ -9,7 +9,7 @@
  */
 
 import { createSelector } from 'reselect';
-import { RECEIVE_FAVORITES, SEARCH_BOOK_LIST } from '../actions/favorites.js';
+import { RECEIVE_FAVORITES, SEARCH_BOOK_LIST, RECEIVE_CATEGORIES } from '../actions/favorites.js';
 
 export const favorites = (state = {}, action) => {
   switch (action.type) {
@@ -30,6 +30,11 @@ export const favorites = (state = {}, action) => {
         failure: false,
         isFetching: false
       };
+    case RECEIVE_CATEGORIES:
+    return {
+      ...state,
+      categories: Object.keys(action.categories)
+    };  
     default:
       return state;
   }

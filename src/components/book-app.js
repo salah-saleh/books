@@ -75,11 +75,16 @@ class BookApp extends connect(store)(LitElement) {
 
         /* Default theme */
         --app-primary-color: #202020;
-        --app-secondary-color: #202020;
-        --app-dark-text-color: var(--app-secondary-color);
-        --app-background-color: #fafafa;
+        --app-secondary-color: #757575;
+        --app-accent-color: #172C50;
+        --paper-button-ink-color: var(--app-accent-color);
+        --paper-icon-button-ink-color: var(--app-accent-color);
+        --paper-spinner-color: var(--app-accent-color);
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        color: var(--app-primary-color);
 
-        color: var(--app-dark-text-color);
+        --app-dark-text-color: var(--app-primary-color);
+        --app-background-color: #fafafa;
 
         --app-drawer-background-color: var(--app-background-color);
         --app-drawer-text-color: var(--app-dark-text-color);
@@ -307,7 +312,6 @@ class BookApp extends connect(store)(LitElement) {
     this._input = this.shadowRoot.getElementById('input');
     // init irebase and get authenticated user if exist
     store.dispatch(initFirebaseApp());
-    store.dispatch(fetchFavorites());
 }
 
   _stateChanged(state) {
