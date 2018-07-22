@@ -23,7 +23,7 @@ export const navigate = (location) => (dispatch) => {
   // you can do here.
   const pathname = location.pathname;
   const parts = pathname.slice(1).split('/');
-  const page = parts[0] || 'home';
+  const page = parts[0] || 'library';
   // book id is in the path: /detail/{bookId}
   const bookId = parts[1];
   // query is extracted from the search string: /explore?q={query}
@@ -36,7 +36,7 @@ export const navigate = (location) => (dispatch) => {
 const loadPage = (page, query, bookId) => async (dispatch, getState) => {
   let module;
   switch(page) {
-    case 'home':
+    case 'library':
       break;
     case 'explore':
       module = await import('../components/book-explore.js');

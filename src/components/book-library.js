@@ -31,11 +31,11 @@ store.addReducers({
   favorites
 });
 
-class BookHome extends connect(store)(PageViewElement) {
+class BookLibrary extends connect(store)(PageViewElement) {
   _render({ _items, _categories, _user, _showOffline }) {
     updateMetadata({
-      title: 'My Favorites - Books',
-      description: 'My Favorites'
+      title: 'Library - Books',
+      description: 'Rent & Buy Books'
     });
 
     return html`
@@ -210,4 +210,4 @@ class BookHome extends connect(store)(PageViewElement) {
   }
 }
 
-window.customElements.define('book-home', BookHome);
+window.customElements.define('book-library', BookLibrary);
