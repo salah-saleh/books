@@ -10,11 +10,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 import { html } from '@polymer/lit-element';
 import { PageViewElement } from './page-view-element.js';
-import { repeat } from 'lit-html/lib/repeat.js';
-import { connect } from 'pwa-helpers/connect-mixin.js';
-import { updateMetadata } from 'pwa-helpers/metadata.js';
+import { repeat } from 'lit-html/lib/repeat';
+import { connect } from 'pwa-helpers/connect-mixin';
+import { updateMetadata } from 'pwa-helpers/metadata';
 
 import { BookButtonStyle } from './shared-styles.js';
+import { LibraryStyle } from './styles/library-styles.js';
+
 import { closeIcon } from './book-icons.js';
 import './book-item.js';
 import './book-offline.js';
@@ -40,112 +42,10 @@ class BookLibrary extends connect(store)(PageViewElement) {
 
     return html`
       ${BookButtonStyle}
-      <style>
-        :host {
-          display: block;
-        }
-
-        .books {
-          max-width: 432px;
-          margin: 0 auto;
-          padding: 8px;
-          box-sizing: border-box;
-          /* remove margin between inline-block nodes */
-          font-size: 0;
-        }
-
-        book-select > select {
-          font-size: 16px;
-          padding: 16px 24px 16px 70px;
-        }
-
-        label {
-          font-size: 13px;
-        }
-
-        .pickers {
-          width: 90%;
-          max-width: 407px;
-          @apply --layout-vertical;
-        }
-
-        li {
-          display: inline-block;
-          position: relative;
-          width: calc(100% - 16px);
-          max-width: 400px;
-          min-height: 240px;
-          margin: 8px;
-          font-size: 14px;
-          vertical-align: top;
-          background: #fff;
-          border-radius: 2px;
-          box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-                      0 1px 5px 0 rgba(0, 0, 0, 0.12),
-                      0 3px 1px -2px rgba(0, 0, 0, 0.2);
-          list-style: none;
-        }
-
-        li::after {
-          content: '';
-          display: block;
-          padding-top: 65%;
-        }
-
-        h3 {
-          text-align: center;
-          font-size: 24px;
-          font-weight: 400;
-          margin-bottom: 0;
-        }
-
-        .signin-section {
-          text-align: center;
-        }
-
-        .fav-button {
-          width: 32px;
-          height: 32px;
-          padding: 2px;
-          margin: 0;
-          border: 2px solid;
-          background: transparent;
-          -webkit-appearance: none;
-          cursor: pointer;
-        }
-
-        .fav-button > svg {
-          width: 24px;
-          height: 24px;
-        }
-
-        .favorites-empty {
-          text-align: center;
-        }
-
-        [hidden] {
-          display: none !important;
-        }
-
-        /* Wide Layout */
-        @media (min-width: 648px) {
-          li {
-            height: 364px;
-          }
-        }
-
-        /* Wider layout: 2 columns */
-        @media (min-width: 872px) {
-          .books {
-            width: 832px;
-            max-width: none;
-            padding: 16px 0;
-          }
-        }
-      </style>
+      ${LibraryStyle}
 
       <section hidden?="${_showOffline}">
-        <div class="favorites-section">
+        <div class="library-section">
           <div class="pickers books">
             <book-select>
               <label id="categoryLabel" prefix="">Category</label>
@@ -160,14 +60,14 @@ class BookLibrary extends connect(store)(PageViewElement) {
               </book-md-decorator>
             </book-select>
           </div>
-          <div class="favorites-empty" hidden?="${!_items || _items.length}">
+          <div class="library-empty" hidden?="${!_items || _items.length}">
             <h3>No Books Available.</h3>
           </div>
           <ul class="books">
             ${_items && repeat(_items, (item) => html`
               <li hidden?="${item.hidden}">
                 <book-item item="${item}">
-                  <button class="fav-button" hidden?="${!_user || !item.owners || !(_user.uid in item.owners)}" title="Remove book" on-click="${(e) => this._removeFavorite(e, item)}">${closeIcon}</button>
+                  <button class="lib-button" hidden?="${!_user || !item.owners || !(_user.uid in item.owners)}" title="Remove book" on-click="${(e) => this._removeFavorite(e, item)}">${closeIcon}</button>
                 </book-item>
               </li>
             `)}
