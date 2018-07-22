@@ -57,8 +57,9 @@ class BookApp extends connect(store)(LitElement) {
     const inputAtTop = ('ontouchstart' in window || !_wideLayout) || (_page === 'explore' && _query) || _page === 'detail' || _page === 'viewer' || _page === 'library';
     // back button href
     const backHref = _page === 'detail' ?
-        (_lastVisitedListPage === 'favorites' ? 
-          '/favorites' : (_lastVisitedListPage === 'library' ? '/library' : `/explore?q=${_query}`)) : `/detail/${_bookId}`;
+        (_lastVisitedListPage === 'favorites' ? '/favorites' : 
+        (_lastVisitedListPage === 'library' ? '/library' : 
+        (_lastVisitedListPage === '' ? `/library`: '/'))) : `/detail/${_bookId}`;
     // query
     const query = _page === 'library' ? '' : _query;
 
