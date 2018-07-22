@@ -10,15 +10,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 import firebase from '@firebase/app';
 import '@firebase/database';
+import { Debouncer } from '@polymer/polymer/lib/utils/debounce.js';
+import { microTask } from '@polymer/polymer/lib/utils/async.js';
 
 export const RECEIVE_LIBRARY = 'RECEIVE_LIBRARY';
 export const RECEIVE_CATEGORIES = 'RECEIVE_CATEGORIES';
 export const SEARCH_LIBRARY_LIST = 'SEARCH_LIBRARY_LIST';
 
 export const searchLibrary = (searchStr) => dispatch => {
-  dispatch({
-    type: 'SEARCH_LIBRARY_LIST',
-    searchStr
+  let _itemChangeDebouncer = {};
+  _itemChangeDebouncer = Debouncer.debounce(_itemChangeDebouncer,
+    microTask, () => {
+      dispatch({
+        type: 'SEARCH_LIBRARY_LIST',
+        searchStr
+      });
   });
 }
 
