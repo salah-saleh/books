@@ -59,7 +59,7 @@ class BookApp extends connect(store)(LitElement) {
     const backHref = _page === 'detail' ?
         (_lastVisitedListPage === 'favorites' ? '/favorites' : 
         (_lastVisitedListPage === 'library' ? '/library' : 
-        (_lastVisitedListPage === '' ? `/library`: '/'))) : `/detail/${_bookId}`;
+        (_lastVisitedListPage === '' ? `/library`: `/explore?q=${_query}`))) : `/detail/${_bookId}`;
     // query
     const query = _page === 'library' ? '' : _query;
 
@@ -274,7 +274,7 @@ class BookApp extends connect(store)(LitElement) {
     </main>
 
     <footer>
-      <p>Made with &lt;3 by the Polymer team.</p>
+      <p>Made with &lt;3.</p>
     </footer>
 
     <snack-bar active?="${_snackbarOpened}">
