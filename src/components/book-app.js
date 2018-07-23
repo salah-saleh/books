@@ -86,8 +86,9 @@ class BookApp extends connect(store)(LitElement) {
               on-change="${(e) => (_page !=='library' && _page !=='user') ? store.dispatch(updateLocationURL(`/explore?q=${e.target.value}`)) : ''}"
               on-keyup="${(e) => _page ==='library' ? store.dispatch(searchLibrary(this._input.value)) :
                                   (_page ==='user' ? store.dispatch(searchUserLibrary(this._input.value)) : '')}"
-              on-search="${(e) => _page ==='library' ? (e.target.value === '' ? store.dispatch(searchLibrary(this._input.value)) : '') :
-                                  (_page ==='user' ? (e.target.value === '' ? store.dispatch(searchUserLibrary(this._input.value)) : '') : '')}">
+              on-search="${(e) => _page ==='library' ? (e.target.value === '' ? store.dispatch(searchLibrary('')) : '') :
+                                  (_page ==='user' ? (e.target.value === '' ? store.dispatch(searchUserLibrary('')) : '') : 
+                                  store.dispatch(updateLocationURL("/explore?q=")))}">
           <speech-mic slot="button" continuous interimResults on-result="${(e) => this._micResult(e)}"></speech-mic>
         </book-input-decorator>
         <h4 class="subtitle" hidden?="${!hideInput}">${_subTitle}</h4>

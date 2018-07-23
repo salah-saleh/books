@@ -12,10 +12,10 @@ import { createSelector } from 'reselect';
 import { RECEIVE_USER_LIBRARY, SEARCH_USER_LIBRARY_LIST, FILTER_USER_LIBRARY } from '../actions/user-library.js';
 
 export const userLibrary = (state = {}, action) => {
+  let allFilteredOut = true;
+  let items = {...state.items};
   switch (action.type) {
-    case SEARCH_USER_LIBRARY_LIST:
-      let allFilteredOut = true;
-      let items = {...state.items};
+    case SEARCH_USER_LIBRARY_LIST: 
       for (let key in items) {
         if (items[key].volumeInfo.title.toLocaleLowerCase().indexOf(action.searchStr.toLocaleLowerCase()) < 0) {
           items[key].hidden = true;
@@ -23,12 +23,12 @@ export const userLibrary = (state = {}, action) => {
           items[key].hidden = false;
           allFilteredOut = false;
         }
+      }
+      return {
+        ...state,
+        items,
+        allFilteredOut
       };
-    return {
-      ...state,
-      items: items,
-      allFilteredOut
-    };
     case RECEIVE_USER_LIBRARY:
       return {
         ...state,
@@ -38,24 +38,22 @@ export const userLibrary = (state = {}, action) => {
         allFilteredOut: false
       };
     case FILTER_USER_LIBRARY:
-      let nItems = {...state.items};
-      let allFilteredOut = true;
-      for (let key in nItems) {
+      for (let key in items) {
         if (action.category === 'All') {
-          nItems[key].hidden = false;
+          items[key].hidden = false;
           allFilteredOut = false;
         } else {
-          if (nItems[key].platformInfo && nItems[key].platformInfo.category === action.category) {
-            nItems[key].hidden = false
+          if (items[key].platformInfo && items[key].platformInfo.category === action.category) {
+            items[key].hidden = false
             allFilteredOut = false;
           } else {
-            nItems[key].hidden = true;
+            items[key].hidden = true;
           }
         }
       }
       return {
         ...state,
-        items: nItems,
+        items,
         allFilteredOut
       };   
     default:

@@ -12,10 +12,10 @@ import { createSelector } from 'reselect';
 import { RECEIVE_LIBRARY, SEARCH_LIBRARY_LIST, RECEIVE_CATEGORIES } from '../actions/library.js';
 
 export const library = (state = {}, action) => {
+  let allFilteredOut = true;
+  let items = {...state.items};
   switch (action.type) {
     case SEARCH_LIBRARY_LIST:
-      let allFilteredOut = true;
-      let items = {...state.items};
       for (let key in items) {
         if (items[key].volumeInfo.title.toLocaleLowerCase().indexOf(action.searchStr.toLocaleLowerCase()) < 0) {
           items[key].hidden = true;
@@ -26,7 +26,7 @@ export const library = (state = {}, action) => {
       };
       return {
         ...state,
-        items: items,
+        items,
         allFilteredOut
       };
     case RECEIVE_LIBRARY:
