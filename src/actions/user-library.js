@@ -13,36 +13,38 @@ import '@firebase/database';
 import { Debouncer } from '@polymer/polymer/lib/utils/debounce.js';
 import { microTask } from '@polymer/polymer/lib/utils/async.js';
 
-export const RECEIVE_LIBRARY = 'RECEIVE_LIBRARY';
-export const RECEIVE_CATEGORIES = 'RECEIVE_CATEGORIES';
-export const SEARCH_LIBRARY_LIST = 'SEARCH_LIBRARY_LIST';
+export const RECEIVE_USER_LIBRARY = 'RECEIVE_USER_LIBRARY';
+export const FILTER_USER_LIBRARY = 'FILTER_USER_LIBRARY';
+export const SEARCH_USER_LIBRARY_LIST = 'SEARCH_USER_LIBRARY_LIST';
 
-export const searchLibrary = (searchStr) => dispatch => {
+export const searchUserLibrary = (searchStr) => dispatch => {
   let _itemChangeDebouncer = {};
   _itemChangeDebouncer = Debouncer.debounce(_itemChangeDebouncer,
     microTask, () => {
       dispatch({
-        type: 'SEARCH_LIBRARY_LIST',
+        type: 'SEARCH_USER_LIBRARY_LIST',
         searchStr
       });
   });
 }
 
-export const fetchCategories = () => dispatch => {
-  firebase.database().ref('categories').on('value', snapshot => {
-    const categories = snapshot.val() === null ? {} : snapshot.val();
-    dispatch({
-      type: 'RECEIVE_CATEGORIES',
-      categories
-    });
-  });
+export const filterUserLibrary = (category) => (dispatch, getState) => {
+  dispatch({
+    type: 'FILTER_USER_LIBRARY',
+    category
+  });  
+  return;
 }
 
-export const fetchLibrary = (category = 'All') => dispatch => {
-  firebase.database().ref('category-books/' + category).on('value', snapshot => {
+let init = false;
+export const fetchUserLibrary = () => (dispatch, getState) => {
+  if (init) return;
+  init = true;
+  const userID = getState().auth.user.uid;
+  firebase.database().ref('user-books/' + userID).on('value', snapshot => {
     const items = snapshot.val() === null ? {} : snapshot.val();
     dispatch({
-      type: 'RECEIVE_LIBRARY',
+      type: 'RECEIVE_USER_LIBRARY',
       items
     });
   });

@@ -11,42 +11,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 import firebase from '@firebase/app';
 import '@firebase/database';
 
-export const RECEIVE_FAVORITES = 'RECEIVE_FAVORITES';
-export const RECEIVE_CATEGORIES = 'RECEIVE_CATEGORIES';
-export const SEARCH_BOOK_LIST = 'SEARCH_BOOK_LIST';
+export const changeRentalInfo = (item, type = 'Sale', price = 5, condition = "Good") => (dispatch, getState) => {
+  let updates = {};
+  const userID = getState().auth.user.uid;
+  const info = {
+    type,
+    price, 
+    condition
+  }
+  const key = '/category-books/All/' + item.id + '/owners/' + userID;
+  const newItemKey = firebase.database().ref().child(key).push().key;
+  updates[key + '/' + newItemKey] = info;
+  updates[key + '/' + newItemKey] = info;
 
-export const searchBookList = (searchStr) => dispatch => {
-  dispatch({
-    type: 'SEARCH_BOOK_LIST',
-    searchStr
-  });
+  firebase.database().ref().update(updates);
 }
 
-export const fetchCategories = () => dispatch => {
-  firebase.database().ref('categories').on('value', snapshot => {
-    const categories = snapshot.val() === null ? {} : snapshot.val();
-    dispatch({
-      type: 'RECEIVE_CATEGORIES',
-      categories
-    });
-  });
+export const saveBookToLibrary = (item, isRemove) => (dispatch) => {
+  dispatch(isRemove ? removeBook(item) : addBook(item));
 }
 
-export const fetchFavorites = (category = 'All') => dispatch => {
-  firebase.database().ref('category-books/' + category).on('value', snapshot => {
-    const items = snapshot.val() === null ? {} : snapshot.val();
-    dispatch({
-      type: 'RECEIVE_FAVORITES',
-      items
-    });
-  });
-}
-
-export const saveFavorite = (item, isRemove) => (dispatch) => {
-  dispatch(isRemove ? removeFavorite(item) : addFavorite(item));
-}
-
-const addFavorite = (item) => (dispatch, getState) => {
+const addBook = (item) => (dispatch, getState) => {
   let updates = {};
   const userID = getState().auth.user.uid;
   item.volumeInfo.categories[0] += ' / All';
@@ -61,7 +46,7 @@ const addFavorite = (item) => (dispatch, getState) => {
   firebase.database().ref().update(updates);
 }
 
-const removeFavorite = (item) => (dispatch, getState) => {
+const removeBook = (item) => (dispatch, getState) => {
   let updates = {};
   const userID = getState().auth.user.uid;
   item.volumeInfo.categories[0] += ' / All';
@@ -75,4 +60,3 @@ const removeFavorite = (item) => (dispatch, getState) => {
   updates['/user-books/' + userID + '/' + item.id] = null;
   firebase.database().ref().update(updates);   
 }
-

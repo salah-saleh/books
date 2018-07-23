@@ -70,6 +70,11 @@ const loadPage = (page, query, bookId) => async (dispatch, getState) => {
       // Update subtitle
       dispatch(updateSubTitle('Favorites'));
       break;
+    case 'user':
+      module = await import('../components/book-user-library.js');
+      // Update subtitle
+      dispatch(updateSubTitle('Your Books'));
+      break;      
     case 'about':
       await import('../components/book-about.js');
       break;

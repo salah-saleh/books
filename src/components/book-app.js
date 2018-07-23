@@ -30,6 +30,7 @@ import { store } from '../store.js';
 import { navigate, updateLocationURL, updateOffline, updateLayout, showSnackbar, updateDrawerState } from '../actions/app.js';
 import { signIn, signOut, initFirebaseApp } from '../actions/auth.js';
 import { searchLibrary } from '../actions/library.js';
+import { searchUserLibrary } from '../actions/user-library.js';
 
 class BookApp extends connect(store)(LitElement) {
   _render({
@@ -53,12 +54,12 @@ class BookApp extends connect(store)(LitElement) {
   // True to hide the menu button and show the back button.
   const hideMenuBtn = _page === 'detail' || _page === 'viewer';
   // True to hide the input.
-  const hideInput = !_page || _page === 'favorites' || _page === 'about' || _page === '404';
+  const hideInput = !_page || _page === 'favorites' || _page === 'about' || _page === '404' || (_page === 'user' && !_user);
   // True to make the search input aligns at the top inside the header instead of inside the main content.
   const inputAtTop = ('ontouchstart' in window || !_wideLayout) || (_page === 'explore' && _query) || _page === 'detail' || _page === 'viewer' || _page === 'library';
   // back button href
   const backHref = _page === 'detail' ?
-      (_lastVisitedListPage === 'favorites' ? '/favorites' : 
+      (_lastVisitedListPage === 'user' ? '/user' : 
       (_lastVisitedListPage === 'library' ? '/library' : 
       (_lastVisitedListPage === '' ? `/library`: `/explore?q=${_query}`))) : `/detail/${_bookId}`;
   // query
@@ -82,9 +83,11 @@ class BookApp extends connect(store)(LitElement) {
       <app-toolbar class="toolbar-bottom" sticky>
         <book-input-decorator top?="${inputAtTop}" hidden?="${hideInput}">
           <input slot="input" id="input" aria-label="Search Books" autofocus type="search" value="${query}"
-              on-change="${(e) => _page !=='library' ? store.dispatch(updateLocationURL(`/explore?q=${e.target.value}`)) : ''}"
-              on-keyup="${(e) => _page ==='library' ? store.dispatch(searchLibrary(this._input.value)) : ''}"
-              on-search="${(e) => _page ==='library' ? (e.target.value === '' ? store.dispatch(searchLibrary(this._input.value)) : '') : ''}">
+              on-change="${(e) => (_page !=='library' && _page !=='user') ? store.dispatch(updateLocationURL(`/explore?q=${e.target.value}`)) : ''}"
+              on-keyup="${(e) => _page ==='library' ? store.dispatch(searchLibrary(this._input.value)) :
+                                  (_page ==='user' ? store.dispatch(searchUserLibrary(this._input.value)) : '')}"
+              on-search="${(e) => _page ==='library' ? (e.target.value === '' ? store.dispatch(searchLibrary(this._input.value)) : '') :
+                                  (_page ==='user' ? (e.target.value === '' ? store.dispatch(searchUserLibrary(this._input.value)) : '') : '')}">
           <speech-mic slot="button" continuous interimResults on-result="${(e) => this._micResult(e)}"></speech-mic>
         </book-input-decorator>
         <h4 class="subtitle" hidden?="${!hideInput}">${_subTitle}</h4>
@@ -97,7 +100,7 @@ class BookApp extends connect(store)(LitElement) {
       <nav class="drawer-list" on-click="${e => store.dispatch(updateDrawerState(false))}">
         <a selected?="${_page === 'library'}" href="/library">Library</a>
         <a selected?="${_page === 'explore'}" href="/explore?q=${query}">Add Your Books</a>
-        <a selected?="${_page === 'favorites'}" href="/favorites">Your Books</a>
+        <a selected?="${_page === 'user'}" href="/user">Your Books</a>
         <a selected?="${_page === 'about'}" href="/about">About</a>
       </nav>
     </app-drawer>
@@ -108,7 +111,7 @@ class BookApp extends connect(store)(LitElement) {
       <book-explore class="_page" active?="${_page === 'explore'}"></book-explore>
       <book-detail class="_page" active?="${_page === 'detail'}"></book-detail>
       <book-viewer class="_page" active?="${_page === 'viewer'}"></book-viewer>
-      <book-favorites class="_page" active?="${_page === 'favorites'}"></book-favorites>
+      <book-user-library class="_page" active?="${_page === 'user'}"></book-user-library>
       <book-about class="_page" active?="${_page === 'about'}"></book-about>
       <book-404 class="_page" active?="${_page === '404'}"></book-404>
     </main>

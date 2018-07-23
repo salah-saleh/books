@@ -27,7 +27,8 @@ import { store } from '../store.js';
 
 import { refreshPage } from '../actions/app.js';
 import { fetchBook } from '../actions/book.js';
-import { saveBookToLibrary, changeRentalInfo } from '../actions/library.js';
+import { saveBookToLibrary } from '../actions/library.js';
+import { changeRentalInfo } from '../actions/detail.js';
 import { book, bookSelector } from '../reducers/book.js';
 import { favorites } from '../reducers/favorites.js';
 

@@ -26,18 +26,19 @@ import { store } from '../store.js';
 
 import { refreshPage } from '../actions/app.js';
 import { saveBookToLibrary } from '../actions/detail.js';
-import { fetchCategories, fetchLibrary } from '../actions/library.js';
-import { library, libraryListSelector } from '../reducers/library.js';
+import { fetchUserLibrary, filterUserLibrary } from '../actions/user-library.js';
+import { signIn } from '../actions/auth.js';
+import { userLibrary, userLibraryListSelector } from '../reducers/user-library.js';
 
 // We are lazy loading its reducer.
 store.addReducers({
-  library
+  userLibrary
 });
 
-class BookLibrary extends connect(store)(PageViewElement) {
+class BookUserLibrary extends connect(store)(PageViewElement) {
   _render({ _items, _categories, _user, _showOffline, _allFiltered }) {
     updateMetadata({
-      title: 'Library - Books',
+      title: 'User Library - Books',
       description: 'Rent & Buy Books'
     });
 
@@ -48,7 +49,7 @@ class BookLibrary extends connect(store)(PageViewElement) {
       <section hidden?="${_showOffline}">
         <div class="library-section">
           <div class="pickers books">
-            <book-select hidden?="${!_items}">
+            <book-select hidden?="${!_user ||!_items}">
               <label id="categoryLabel" prefix="">Category</label>
               <select id="selectCategory" name="category"
                     aria-label="Category"  on-change="${() => this._selectCategory()}">
@@ -61,7 +62,7 @@ class BookLibrary extends connect(store)(PageViewElement) {
               </book-md-decorator>
             </book-select>
           </div>
-          <div class="library-empty" hidden?="${_items && !_allFiltered}">
+          <div class="library-empty" hidden?="${!_user || (_user && _items && !_allFiltered)}">
             <h3>No Books Available.</h3>
           </div>
           <ul class="books">
@@ -73,6 +74,10 @@ class BookLibrary extends connect(store)(PageViewElement) {
               </li>
             `)}
           </ul>
+        </div>
+        <div class="signin-section" hidden?="${_user}">
+          <p>Please sign in to see your books.</p>
+          <button class="book-button" on-click="${() => store.dispatch(signIn())}">Sign in</button>
         </div>
       </section>
 
@@ -89,22 +94,23 @@ class BookLibrary extends connect(store)(PageViewElement) {
   }}
 
   _firstRendered() {
-    store.dispatch(fetchCategories());
-    store.dispatch(fetchLibrary());
+    this._categories = [ "All", "For Sale", "For Rent", "Sold", "Rented", "Bought", "Borrowed"];
   }
 
   // This is called every time something is updated in the store.
   _stateChanged(state) {
-    this._items = libraryListSelector(state);
-    this._categories = state.library.categories;
+    this._items = userLibraryListSelector(state);
+    // fetchUserLibrary only once the user is signed in
+    if (!this._user && state.auth.user) store.dispatch(fetchUserLibrary());
     this._user = state.auth.user;
-    this._showOffline = state.app.offline && state.library.failure;
-    this._allFiltered = state.library.allFilteredOut;
+    if (!this._user) this._items = [];
+    this._showOffline = state.app.offline && state.userLibrary.failure;
+    this._allFiltered = state.userLibrary.allFilteredOut;
   }
 
   _selectCategory() {
     const newCat = this.shadowRoot.getElementById('selectCategory').value;
-    store.dispatch(fetchLibrary(newCat));
+    store.dispatch(filterUserLibrary(newCat));
   }
 
   _removeBook(e, item) {
@@ -113,4 +119,4 @@ class BookLibrary extends connect(store)(PageViewElement) {
   }
 }
 
-window.customElements.define('book-library', BookLibrary);
+window.customElements.define('book-user-library', BookUserLibrary);

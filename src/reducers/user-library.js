@@ -9,11 +9,11 @@
  */
 
 import { createSelector } from 'reselect';
-import { RECEIVE_LIBRARY, SEARCH_LIBRARY_LIST, RECEIVE_CATEGORIES } from '../actions/library.js';
+import { RECEIVE_USER_LIBRARY, SEARCH_USER_LIBRARY_LIST, FILTER_USER_LIBRARY } from '../actions/user-library.js';
 
-export const library = (state = {}, action) => {
+export const userLibrary = (state = {}, action) => {
   switch (action.type) {
-    case SEARCH_LIBRARY_LIST:
+    case SEARCH_USER_LIBRARY_LIST:
       let allFilteredOut = true;
       let items = {...state.items};
       for (let key in items) {
@@ -24,12 +24,12 @@ export const library = (state = {}, action) => {
           allFilteredOut = false;
         }
       };
-      return {
-        ...state,
-        items: items,
-        allFilteredOut
-      };
-    case RECEIVE_LIBRARY:
+    return {
+      ...state,
+      items: items,
+      allFilteredOut
+    };
+    case RECEIVE_USER_LIBRARY:
       return {
         ...state,
         items: action.items,
@@ -37,20 +37,36 @@ export const library = (state = {}, action) => {
         isFetching: false,
         allFilteredOut: false
       };
-    case RECEIVE_CATEGORIES:
-    return {
-      ...state,
-      categories: Object.keys(action.categories)
-    };  
+    case FILTER_USER_LIBRARY:
+      let nItems = {...state.items};
+      let allFilteredOut = true;
+      for (let key in nItems) {
+        if (action.category === 'All') {
+          nItems[key].hidden = false;
+          allFilteredOut = false;
+        } else {
+          if (nItems[key].platformInfo && nItems[key].platformInfo.category === action.category) {
+            nItems[key].hidden = false
+            allFilteredOut = false;
+          } else {
+            nItems[key].hidden = true;
+          }
+        }
+      }
+      return {
+        ...state,
+        items: nItems,
+        allFilteredOut
+      };   
     default:
       return state;
   }
 }
 
-export const librarySelector = state => state.library && state.library.items;
+export const userLibrarySelector = state => state.userLibrary && state.userLibrary.items;
 
-export const libraryListSelector = createSelector(
-  librarySelector,
+export const userLibraryListSelector = createSelector(
+  userLibrarySelector,
   (items) => {
     if (!items) {
       return;
