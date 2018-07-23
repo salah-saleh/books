@@ -28,8 +28,7 @@ class BookAbout extends PageViewElement {
         }
       </style>
 
-      <p>Google Books PWA</p>
-      <p><a href="http://books.google.com" target="_blank" rel="noopener">Visit the regular Google Books site</a></p>
+      <p>Rent and Sell Books</p>
     `;
   }
 }
