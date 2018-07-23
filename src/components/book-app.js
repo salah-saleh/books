@@ -114,7 +114,7 @@ class BookApp extends connect(store)(LitElement) {
     </main>
 
     <footer>
-      <p>Made with &lt;3.</p>
+      <p></p>
     </footer>
 
     <snack-bar active?="${_snackbarOpened}">
