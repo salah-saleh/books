@@ -27,19 +27,18 @@ import { store } from '../store.js';
 
 import { refreshPage } from '../actions/app.js';
 import { fetchBook } from '../actions/book.js';
-import { saveBookToLibrary } from '../actions/library.js';
-import { changeRentalInfo } from '../actions/detail.js';
+import { changeRentalInfo, saveBookToLibrary } from '../actions/detail.js';
 import { book, bookSelector } from '../reducers/book.js';
-import { favorites } from '../reducers/favorites.js';
+import { library } from '../reducers/library.js';
 
 // We are lazy loading its reducer.
 store.addReducers({
   book,
-  favorites
+  library
 });
 
 class BookDetail extends connect(store)(PageViewElement) {
-  _render({_item, _favorites, _lastVisitedListPage, _showOffline, _isSignedIn, _rentalType, 
+  _render({_item, _library, _lastVisitedListPage, _showOffline, _isSignedIn, _rentalType, 
     _rentalPrice}) {
     // Don't render if there is no item.
     if (!_item) {
@@ -59,7 +58,7 @@ class BookDetail extends connect(store)(PageViewElement) {
     const poster = thumbnail.replace('&zoom=1', '');
     const categories = info.categories || [];
     const identifiers = info.industryIdentifiers || [];
-    const isFavorite = _favorites && !!_favorites[_item.id];
+    const isFavorite = _library && !!_library[_item.id];
 
     updateMetadata({
       title: `${title} - Books`,
@@ -82,7 +81,7 @@ class BookDetail extends connect(store)(PageViewElement) {
             <div class="info-item" hidden?="${!pageCount}" desktop>${pageCount} pages</div>
             <div class="info-item" hidden?="${!publisher}" desktop>${publisher} - publisher</div>
             <div class="flex"></div>
-            <div class="fav-btn-container" hidden="${_lastVisitedListPage === 'favorites'}">
+            <div class="fav-btn-container" hidden="${_lastVisitedListPage === 'library'}">
               <button class="fav-button" on-click="${() => store.dispatch(saveBookToLibrary(_item, isFavorite))}" hidden="${!_isSignedIn}">
                 ${isFavorite ? favoriteIcon : favoriteBorderIcon} ${isFavorite ? 'Added to Your Library' : 'Add to My Library'}
               </button>
@@ -156,7 +155,7 @@ class BookDetail extends connect(store)(PageViewElement) {
 
   static get properties() { return {
     _item: Object,
-    _favorites: Object,
+    _library: Object,
     _lastVisitedListPage: Boolean,
     _showOffline: Boolean,
     _isSignedIn: Boolean,
@@ -167,7 +166,7 @@ class BookDetail extends connect(store)(PageViewElement) {
   // This is called every time something is updated in the store.
   _stateChanged(state) {
     this._item = bookSelector(state);
-    this._favorites = state.favorites && state.favorites.items;
+    this._library = state.library && state.library.items;
     this._lastVisitedListPage = state.app.lastVisitedListPage;
     this._showOffline = state.app.offline && state.book.failure;
     this._isSignedIn = !!state.auth.user;
