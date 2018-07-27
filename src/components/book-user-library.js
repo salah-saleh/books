@@ -18,7 +18,7 @@ import { BookButtonStyle } from './shared-styles.js';
 import { LibraryStyle } from './styles/library-styles.js';
 
 import { closeIcon } from './book-icons.js';
-import './book-item.js';
+import './book-user-item.js';
 import './book-offline.js';
 
 // This element is connected to the redux store.
@@ -68,9 +68,9 @@ class BookUserLibrary extends connect(store)(PageViewElement) {
           <ul class="books">
             ${_items && repeat(_items, (item) => html`
               <li hidden?="${item.hidden}">
-                <book-item item="${item}">
+                <book-user-item item="${item}">
                   <button class="lib-button" hidden?="${!_user || !item.owners || !(_user.uid in item.owners)}" title="Remove book" on-click="${(e) => this._removeBook(e, item)}">${closeIcon}</button>
-                </book-item>
+                </book-user-item>
               </li>
             `)}
           </ul>

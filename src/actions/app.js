@@ -47,15 +47,33 @@ const loadPage = (page, query, bookId) => async (dispatch, getState) => {
       // In book-explore.js module it exports searchBooks so we can call the function here.
       dispatch(module.searchBooks(query));
       break;
-    case 'detail':
-      module = await import('../components/book-detail.js');
+    case 'user-detail':
+      module = await import('../components/book-user-detail.js');
       // Fetch the book info for the given book id.
       await dispatch(module.fetchBook(bookId));
       // Wait for to check if the book id is valid.
       if (isFetchBookFailed(getState().book)) {
         page = '404';
       }
-      break;
+      break; 
+    case 'explore-detail':
+      module = await import('../components/book-explore-detail.js');
+      // Fetch the book info for the given book id.
+      await dispatch(module.fetchBook(bookId));
+      // Wait for to check if the book id is valid.
+      if (isFetchBookFailed(getState().book)) {
+        page = '404';
+      }
+      break; 
+      case 'library-detail':
+      module = await import('../components/book-library-detail.js');
+      // Fetch the book info for the given book id.
+      await dispatch(module.fetchBook(bookId));
+      // Wait for to check if the book id is valid.
+      if (isFetchBookFailed(getState().book)) {
+        page = '404';
+      }
+      break;      
     case 'viewer':
       module = await import('../components/book-viewer.js');
       // Fetch the book info for the given book id.

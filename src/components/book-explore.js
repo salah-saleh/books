@@ -15,7 +15,7 @@ import { connect } from 'pwa-helpers/connect-mixin.js';
 import { updateMetadata } from 'pwa-helpers/metadata.js';
 
 import './book-image.js';
-import './book-item.js';
+import './book-explore-item.js';
 import './book-offline.js';
 
 // This element is connected to the redux store.
@@ -115,7 +115,7 @@ class BookExplore extends connect(store)(PageViewElement) {
         <ul class="books" hidden?="${!_query}">
           ${repeat(_items, (item) => html`
             <li>
-              <book-item item="${item}"></book-item>
+              <book-explore-item item="${item}"></book-explore-item>
             </li>
           `)}
         </ul>

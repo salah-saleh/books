@@ -52,16 +52,11 @@ class BookApp extends connect(store)(LitElement) {
   // Anything that's related to rendering should be done in here.
 
   // True to hide the menu button and show the back button.
-  const hideMenuBtn = _page === 'detail' || _page === 'viewer';
+  const hideMenuBtn = _page === 'user-detail' || _page === 'explore-detail' || _page === 'library-detail' || _page === 'viewer';
   // True to hide the input.
-  const hideInput = !_page || _page === 'favorites' || _page === 'about' || _page === '404' || (_page === 'user' && !_user);
+  const hideInput = !_page || _page === 'favorites' || _page === 'about' || _page === 'user-detail' || _page === 'explore-detail' || _page === 'library-detail' || _page === '404' || (_page === 'user' && !_user);
   // True to make the search input aligns at the top inside the header instead of inside the main content.
-  const inputAtTop = ('ontouchstart' in window || !_wideLayout) || (_page === 'explore' && _query) || _page === 'detail' || _page === 'viewer' || _page === 'library';
-  // back button href
-  const backHref = _page === 'detail' ?
-      (_lastVisitedListPage === 'user' ? '/user' : 
-      (_lastVisitedListPage === 'library' ? '/library' : 
-      (_lastVisitedListPage === '' ? `/library`: `/explore?q=${_query}`))) : `/detail/${_bookId}`;
+  const inputAtTop = ('ontouchstart' in window || !_wideLayout) || (_page === 'explore' && _query) || _page === 'viewer' || _page === 'library' || _page === 'user';
   // query
   const query = _page === 'library' ? '' : _query;
 
@@ -73,7 +68,7 @@ class BookApp extends connect(store)(LitElement) {
       <app-toolbar class="toolbar-top">
         <button class="menu-btn" aria-label="Menu" hidden?="${hideMenuBtn}"
             on-click="${() => store.dispatch(updateDrawerState(true))}">${menuIcon}</button>
-        <a class="back-btn" aria-label="Go back" hidden?="${!hideMenuBtn}" href="${backHref}">${backIcon}</a>
+        <a class="back-btn" aria-label="Go back" hidden?="${!hideMenuBtn}" href="${'/' + this._backHref()}">${backIcon}</a>
         <div main-title><a href="/">${appTitle}</a></div>
         <button class="signin-btn" aria-label="Sign In" visible?="${_authInitialized}"
             on-click="${() =>  store.dispatch(_user && _user.photoURL ? signOut() : signIn())}">
@@ -83,12 +78,9 @@ class BookApp extends connect(store)(LitElement) {
       <app-toolbar class="toolbar-bottom" sticky>
         <book-input-decorator top?="${inputAtTop}" hidden?="${hideInput}">
           <input slot="input" id="input" aria-label="Search Books" autofocus type="search" value="${query}"
-              on-change="${(e) => (_page !=='library' && _page !=='user') ? store.dispatch(updateLocationURL(`/explore?q=${e.target.value}`)) : ''}"
-              on-keyup="${(e) => _page ==='library' ? store.dispatch(searchLibrary(this._input.value)) :
-                                  (_page ==='user' ? store.dispatch(searchUserLibrary(this._input.value)) : '')}"
-              on-search="${(e) => _page ==='library' ? (e.target.value === '' ? store.dispatch(searchLibrary('')) : '') :
-                                  (_page ==='user' ? (e.target.value === '' ? store.dispatch(searchUserLibrary('')) : '') : 
-                                  store.dispatch(updateLocationURL("/explore?q=")))}">
+              on-change="${(e) => this._onChange(e)}"
+              on-keyup="${(e) => this._onKeyup(e)}"
+              on-search="${(e) => this._onSearch(e)}">
           <speech-mic slot="button" continuous interimResults on-result="${(e) => this._micResult(e)}"></speech-mic>
         </book-input-decorator>
         <h4 class="subtitle" hidden?="${!hideInput}">${_subTitle}</h4>
@@ -110,7 +102,9 @@ class BookApp extends connect(store)(LitElement) {
     <main role="main" class="main-content">
       <book-library class="_page" active?="${_page === 'library'}"></book-library>
       <book-explore class="_page" active?="${_page === 'explore'}"></book-explore>
-      <book-detail class="_page" active?="${_page === 'detail'}"></book-detail>
+      <book-user-detail class="_page" active?="${_page === 'user-detail'}"></book-user-detail>
+      <book-explore-detail class="_page" active?="${_page === 'explore-detail'}"></book-explore-detail>
+      <book-library-detail class="_page" active?="${_page === 'library-detail'}"></book-library-detail>
       <book-viewer class="_page" active?="${_page === 'viewer'}"></book-viewer>
       <book-user-library class="_page" active?="${_page === 'user'}"></book-user-library>
       <book-about class="_page" active?="${_page === 'about'}"></book-about>
@@ -148,6 +142,39 @@ class BookApp extends connect(store)(LitElement) {
     if ('_page' in changed) {
       window.scrollTo(0, 0);
     }
+  }
+
+  // back button href
+  _backHref() {
+    if (!this._page) return;
+    const i = this._page.indexOf('-detail');
+    if (i > -1) {
+      console.log(this._page.substring(0, i));
+      const p = this._page.substring(0, i);
+      if (p == 'explore') return `explore?q=${this._query}`;
+
+      return p;
+    } else {
+      // this page still has to be addressed when it comes for the routes
+      if (this._page === 'viewer') return `library-detail/${this._bookId}`;
+    }
+  }
+
+  _onSearch(e) {
+    if (e.target.value === '') {
+      if (_page ==='library') return store.dispatch(searchLibrary(''));
+      if (_page ==='user') return store.dispatch(searchUserLibrary(''));
+      if (_page ==='explore') return store.dispatch(updateLocationURL('/explore?q='));
+    }
+  }
+
+  _onKeyup(e) {
+    if (this._page ==='library') return store.dispatch(searchLibrary(this._input.value));
+    if (this._page ==='user') return store.dispatch(searchUserLibrary(this._input.value));
+  }
+
+  _onChange(e) {
+    if (this._page ==='explore') return store.dispatch(updateLocationURL(`/explore?q=${e.target.value}`));
   }
 
   _firstRendered() {
