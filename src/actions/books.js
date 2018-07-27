@@ -20,7 +20,7 @@ export const searchBooks = (query) => (dispatch, getState) => {
     if (query) {
       const by = 'relevance';
       const fields = 'fields=items(id,volumeInfo/*,accessInfo(embeddable,country,viewability))';
-      fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&orderBy=${by}&${fields}&download=epub&maxResults=20`)
+      fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&orderBy=${by}&${fields}&maxResults=20`)
         .then(res => res.json())
         .then(data => dispatch(receiveBooks(query, data.items)))
         .catch(() => dispatch(failBooks(query)));
