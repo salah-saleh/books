@@ -65,7 +65,7 @@ const loadPage = (page, query, bookId) => async (dispatch, getState) => {
         page = '404';
       }
       break; 
-      case 'library-detail':
+    case 'library-detail':
       module = await import('../components/book-library-detail.js');
       // Fetch the book info for the given book id.
       await dispatch(module.fetchBook(bookId));

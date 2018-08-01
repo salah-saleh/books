@@ -1,0 +1,1 @@
+All the rights for the modification on top of this template is reserved to Salaheldin Saleh me@s-saleh.com.

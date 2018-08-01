@@ -9,9 +9,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 */
 
 import { html } from '@polymer/lit-element';
+import '@polymer/iron-flex-layout/iron-flex-layout-classes';
 
 export const BookButtonStyle = html`
 <style>
+  .center-justified {
+    @apply --layout-horizontal;
+    @apply(--layout-center-justified);
+    margin: 0 10px 32px 10px;
+    padding: 0;
+    list-style: none;
+  }
+
   .book-button {
     display: inline-block;
     min-width: 157px;

@@ -20,7 +20,7 @@ class BookItem extends LitElement {
     const id = item ? item.id : '';
     const title = info ? info.title : '';
     const author = info ? info.authors && info.authors.join(', ') : '';
-    const thumbnail = info ? info.imageLinks.thumbnail.replace('http', 'https').replace('&edge=curl', '') : null;
+    const thumbnail = (info &&  info.imageLinks)  ? info.imageLinks.thumbnail.replace('http', 'https').replace('&edge=curl', '') : null;
     const date = info ? new Date(info.publishedDate).getFullYear() : '';
     const rating = info && info.averageRating;
     const desc = info ? unsafeHTML(info.description || info.subtitle || '<i>No descriptions.</i>') : '';

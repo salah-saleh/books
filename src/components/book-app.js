@@ -62,7 +62,7 @@ class BookApp extends connect(store)(LitElement) {
 
   return html`
     ${AppStyle}
-
+    
     <!-- Header -->
     <app-header condenses reveals effects="waterfall">
       <app-toolbar class="toolbar-top">
@@ -162,9 +162,9 @@ class BookApp extends connect(store)(LitElement) {
 
   _onSearch(e) {
     if (e.target.value === '') {
-      if (_page ==='library') return store.dispatch(searchLibrary(''));
-      if (_page ==='user') return store.dispatch(searchUserLibrary(''));
-      if (_page ==='explore') return store.dispatch(updateLocationURL('/explore?q='));
+      if (this._page ==='library') return store.dispatch(searchLibrary(''));
+      if (this._page ==='user') return store.dispatch(searchUserLibrary(''));
+      if (this._page ==='explore') return store.dispatch(updateLocationURL('/explore?q='));
     }
   }
 

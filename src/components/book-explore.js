@@ -17,6 +17,10 @@ import { updateMetadata } from 'pwa-helpers/metadata.js';
 import './book-image.js';
 import './book-explore-item.js';
 import './book-offline.js';
+import './book-code.js';
+
+import { BookButtonStyle } from './shared-styles.js';
+import { ExploreStyle } from './styles/explore-styles.js';
 
 // This element is connected to the redux store.
 import { store } from '../store.js';
@@ -31,85 +35,15 @@ store.addReducers({
 });
 
 class BookExplore extends connect(store)(PageViewElement) {
-  _render({ _query, _items, _showOffline }) {
+  _render({ _query, _items, _showOffline, _page }) {
     updateMetadata({
       title: `${_query ? `${_query} - ` : ''}Books`,
       description: 'Search for books'
     });
-
+    
     return html`
-      <style>
-        :host {
-          display: block;
-        }
-
-        .books {
-          max-width: 432px;
-          margin: 0 auto;
-          padding: 8px;
-          box-sizing: border-box;
-          /* remove margin between inline-block nodes */
-          font-size: 0;
-        }
-
-        li {
-          display: inline-block;
-          position: relative;
-          width: calc(100% - 16px);
-          max-width: 400px;
-          min-height: 240px;
-          margin: 8px;
-          font-size: 14px;
-          vertical-align: top;
-          background: #fff;
-          border-radius: 2px;
-          box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-                      0 1px 5px 0 rgba(0, 0, 0, 0.12),
-                      0 3px 1px -2px rgba(0, 0, 0, 0.2);
-          list-style: none;
-        }
-
-        li::after {
-          content: '';
-          display: block;
-          padding-top: 65%;
-        }
-
-        .books-bg {
-          height: 300px;
-          max-width: 570px;
-          margin: 0 auto;
-        }
-
-        .books-desc {
-          padding: 24px 16px 0;
-          text-align: center;
-        }
-
-        [hidden] {
-          display: none !important;
-        }
-
-        /* Wide Layout */
-        @media (min-width: 648px) {
-          li {
-            height: 364px;
-          }
-
-          .books-desc {
-            padding: 96px 16px 0;
-          }
-        }
-
-        /* Wider layout: 2 columns */
-        @media (min-width: 872px) {
-          .books {
-            width: 832px;
-            max-width: none;
-            padding: 16px 0;
-          }
-        }
-      </style>
+      ${BookButtonStyle}
+      ${ExploreStyle}
 
       <section hidden?="${_showOffline}">
         <ul class="books" hidden?="${!_query}">
@@ -120,9 +54,15 @@ class BookExplore extends connect(store)(PageViewElement) {
           `)}
         </ul>
 
-        <book-image class="books-bg" alt="Books Home" center src="images/books-bg.jpg" hidden?="${_query}" placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAACCAIAAADwyuo0AAAAI0lEQVR4AWPw2v7Wfe1Dj7X3/Pd8YPDf+Uqva79x38GQvW8Bu0sOexptskUAAAAASUVORK5CYII="></book-image>
-
-        <div class="books-desc" hidden?="${_query}">Search the world's most comprehensive index of full-text books.</div>
+        <book-image id="img" class="books-bg" alt="Books Home" center src="images/books-bg.jpg" hidden?="${_query}" placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAACCAIAAADwyuo0AAAAI0lEQVR4AWPw2v7Wfe1Dj7X3/Pd8YPDf+Uqva79x38GQvW8Bu0sOexptskUAAAAASUVORK5CYII="></book-image>
+        <div class="center-justified scan" id="scan">
+          <div class="preview-btn-container" hidden?="${_query}">
+            <a on-click="${() => this._toggleImg()}" class="book-button" >Scan Barcode</a>
+          </div>
+        </div>
+        <div class="center-justified">
+          <book-code class="books-bg"  on-hideBookCode="${() => this._hideCodeReader()}" id="bar" hidden></book-code>
+        </div>
       </section>
 
       <book-offline hidden?="${!_showOffline}" on-refresh="${() => store.dispatch(refreshPage())}"></book-offline>
@@ -132,7 +72,8 @@ class BookExplore extends connect(store)(PageViewElement) {
   static get properties() { return {
     _query: String,
     _items: Array,
-    _showOffline: Boolean
+    _showOffline: Boolean,
+    _page: String
   }}
 
   // This is called every time something is updated in the store.
@@ -140,6 +81,37 @@ class BookExplore extends connect(store)(PageViewElement) {
     this._query = state.books.query;
     this._items = itemListSelector(state);
     this._showOffline = state.app.offline && state.books.failure;
+    this._page = state.app.page;
+    // if page changed before a scan is complete -> clean up
+    if(this.shadowRoot && this._page && this.shadowRoot.getElementById('bar') && !this.shadowRoot.getElementById('bar').hidden && this._page.indexOf('explore') < 0) {
+      this._hideCodeReader();
+       Quagga.stop();
+    }
+  }
+
+  _hideCodeReader()  {
+    let bar = this.shadowRoot.getElementById('bar');
+    let scan = this.shadowRoot.getElementById('scan');
+    if(bar) {
+      let el = bar.shadowRoot.querySelector('.drawingBuffer');
+      let br = bar.shadowRoot.querySelector('br');
+      if (el) {
+        el.remove();
+        br.remove();
+      }
+      scan.hidden = false;
+      bar.hidden = true;
+    }
+  }
+
+  _toggleImg()  {
+    let img = this.shadowRoot.getElementById('img');
+    let bar = this.shadowRoot.getElementById('bar');
+    let scan = this.shadowRoot.getElementById('scan');
+    img.hidden = true;
+    bar.hidden = false;
+    scan.hidden = true;
+    bar.scan();
   }
 }
 
